@@ -3,6 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 	ofLogToConsole();
+	ofSetFrameRate(60);
 
 	fbo.allocate(512, 512, GL_RGBA);
 }
@@ -28,7 +29,11 @@ void ofApp::update(){
 void ofApp::draw(){
     ofSetColor(255);
 	fbo.draw(0, 0);
-	tex.draw(0, 512);
+	tex.draw(512, 0);
+
+	// draw FPS
+	int fps = ofGetFrameRate();
+	ofDrawBitmapStringHighlight("fps: " + ofToString(fps), 10, 20);
 }
 
 //--------------------------------------------------------------

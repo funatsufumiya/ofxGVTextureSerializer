@@ -47,7 +47,7 @@ You can use this for Texture sharing as bytes, via ZeroMQ / Shared Memory etc.
     void ofApp::draw() {
         ofSetColor(255);
         fbo.draw(0, 0);
-        tex.draw(0, 512);
+        tex.draw(512, 0);
     }
     ```
 
