@@ -180,12 +180,6 @@ LZ4Data ofxGVTextureSerializer::getLZ4DataFromGVTextureByteArray(const ofBuffer 
 	std::memcpy(&frame_size, gv_texture_bytes_ptr + 12, 4);
 	std::memcpy(&compressed_bytes, gv_texture_bytes_ptr + 16, 4);
 
-	// lz4Data.width = width;
-	// lz4Data.height = height;
-	// lz4Data.format = format;
-	// lz4Data.frame_size = frame_size;
-	// lz4Data.lz4_compressed_bytes.allocate(compressed_bytes);
-
 	ofBuffer buf;
 	buf.allocate(compressed_bytes);
 
@@ -250,18 +244,6 @@ ofBuffer ofxGVTextureSerializer::serializeImage(const ofPixels &pixels)
 			frame_size,
 			compressed_bytes
 		);
-	// lz4Data.lz4_compressed_bytes = compressed_bytes;
-	// lz4Data.width = pixels.getWidth();
-	// lz4Data.height = pixels.getHeight();
-	// lz4Data.format = imageFormatToGVTextureFormat(this->compressedImageFormat);
-	// lz4Data.frame_size = frame_size;
-
-	// ofLogNotice() << "serialized info";
-	// ofLogNotice() << "lz4Data.width: " + ofToString(lz4Data.width);
-	// ofLogNotice() << "lz4Data.height: " + ofToString(lz4Data.height);
-	// ofLogNotice() << "lz4Data.format: " + imageFormatToString(lz4Data.format);
-	// ofLogNotice() << "lz4Data.frame_size: " + ofToString(lz4Data.frame_size);
-	// ofLogNotice() << "lz4Data.compressed_bytes.size(): " + ofToString(lz4Data.getCompressedSize());
 
 	return createGVTextureByteArray(lz4Data);
 }
