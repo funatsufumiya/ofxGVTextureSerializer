@@ -201,15 +201,6 @@ LZ4Data ofxGVTextureSerializer::getLZ4DataFromGVTextureByteArray(const ofBuffer 
 			buf
 		);
 
-#if GVTS_LOG_VERBOSE
-	ofLogNotice() << "deserialized info";
-	ofLogNotice() << "lz4Data.width: " + ofToString(lz4Data.width);
-	ofLogNotice() << "lz4Data.height: " + ofToString(lz4Data.height);
-	ofLogNotice() << "lz4Data.format: " + ofToString(lz4Data.format);
-	ofLogNotice() << "lz4Data.frame_size: " + ofToString(lz4Data.frame_size);
-	ofLogNotice() << "lz4Data.compressed_bytes.size(): " + ofToString(lz4Data.lz4_compressed_bytes.size());
-#endif
-
 	return lz4Data;
 }
 
