@@ -6,6 +6,8 @@ You can use this for Texture sharing as bytes, via ZeroMQ / Shared Memory etc.
 
 ## Usage
 
+***WIP***
+
 - ofApp.h
     
     ```cpp
