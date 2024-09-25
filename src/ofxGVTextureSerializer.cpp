@@ -100,16 +100,18 @@ ofBuffer ofxGVTextureSerializer::decompressLZ4(const ofBuffer &data, size_t fram
 	ofBuffer decompressed_data;
 	// size_t decompressed_bound = frameSize;
 
-	size_t decompressed_bound = frameSize * 4; // keep bigger size for safety
+	size_t decompressed_bound = frameSize;
 
 	decompressed_data.allocate( decompressed_bound );
 	// decompressed_data.reserve(decompressed_bound);
+
 	int real_decompressed_size = LZ4_decompress_safe(
 		(const char *)data.getData(),
 		(char *)decompressed_data.getData(),
 		data.size(),
 		decompressed_bound
 	);
+
 	// int real_decompressed_size = LZ4_decompress_fast(
 	// 	(const char *)data.getData(),
 	// 	(char *)decompressed_data.getData(),
