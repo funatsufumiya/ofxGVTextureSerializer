@@ -1,14 +1,10 @@
 # ofxGVTextureSerializer
 
-***WIP***
-
 GVTextureSerializer addon for OpenFrameworks 11/12
 
 You can use this for Texture sharing as bytes, via ZeroMQ / Shared Memory etc.
 
 ## Usage
-
-***WIP***
 
 - ofApp.h
     
