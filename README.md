@@ -14,8 +14,9 @@ You can use this for Texture sharing as bytes, via ZeroMQ / Shared Memory etc.
     
     ```cpp
     ofxGVTextureSerializer serializer;
-    ofFbo fbo;
-    ofTexture tex;
+    ofFbo fbo; // source
+    ofTexture tex; // destination
+    ofBuffer buffer; // serialized data
     ```
 
 - ofApp.cpp
@@ -35,6 +36,12 @@ You can use this for Texture sharing as bytes, via ZeroMQ / Shared Memory etc.
         ofDrawTriangle(0, -100, 87, 100, -87, 100);
         ofPopMatrix();
         fbo.end();
+
+        // serialize fbo to buffer
+        ofBuffer buffer = serializer.serializeTexture(fbo.getTexture());
+
+        // deserialize buffer to tex
+        tex = serializer.deserialize(buffer);
     }
 
     void ofApp::draw() {
