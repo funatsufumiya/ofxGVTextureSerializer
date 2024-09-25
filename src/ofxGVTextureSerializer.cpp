@@ -5,6 +5,8 @@
 
 #include <memory>
 
+#define GVTS_LOG_VERBOSE 0
+
 // NOTE
 // ## Binary File Format (GVTexture)
 
@@ -148,12 +150,14 @@ ofBuffer ofxGVTextureSerializer::createGVTextureByteArray(LZ4Data lz4Data)
 	std::memcpy(gv_texture_bytes_ptr + 16, &compressed_bytes, 4);
 	std::memcpy(gv_texture_bytes_ptr + 20, lz4DataPtr, compressed_bytes);
 
-	// ofLogNotice() << "serialized info";
-	// ofLogNotice() << "lz4Data.width: " + ofToString(lz4Data.width);
-	// ofLogNotice() << "lz4Data.height: " + ofToString(lz4Data.height);
-	// ofLogNotice() << "lz4Data.format: " + ofToString(lz4Data.format);
-	// ofLogNotice() << "lz4Data.frame_size: " + ofToString(lz4Data.frame_size);
-	// ofLogNotice() << "lz4Data.compressed_bytes.size(): " + ofToString(lz4Data.lz4_compressed_bytes.size());
+#if GVTS_LOG_VERBOSE
+	ofLogNotice() << "serialized info";
+	ofLogNotice() << "lz4Data.width: " + ofToString(lz4Data.width);
+	ofLogNotice() << "lz4Data.height: " + ofToString(lz4Data.height);
+	ofLogNotice() << "lz4Data.format: " + ofToString(lz4Data.format);
+	ofLogNotice() << "lz4Data.frame_size: " + ofToString(lz4Data.frame_size);
+	ofLogNotice() << "lz4Data.compressed_bytes.size(): " + ofToString(lz4Data.lz4_compressed_bytes.size());
+#endif
 
 	return gv_texture_bytes;
 }
@@ -197,12 +201,14 @@ LZ4Data ofxGVTextureSerializer::getLZ4DataFromGVTextureByteArray(const ofBuffer 
 			buf
 		);
 
-	// ofLogNotice() << "deserialized info";
-	// ofLogNotice() << "lz4Data.width: " + ofToString(lz4Data.width);
-	// ofLogNotice() << "lz4Data.height: " + ofToString(lz4Data.height);
-	// ofLogNotice() << "lz4Data.format: " + ofToString(lz4Data.format);
-	// ofLogNotice() << "lz4Data.frame_size: " + ofToString(lz4Data.frame_size);
-	// ofLogNotice() << "lz4Data.compressed_bytes.size(): " + ofToString(lz4Data.lz4_compressed_bytes.size());
+#if GVTS_LOG_VERBOSE
+	ofLogNotice() << "deserialized info";
+	ofLogNotice() << "lz4Data.width: " + ofToString(lz4Data.width);
+	ofLogNotice() << "lz4Data.height: " + ofToString(lz4Data.height);
+	ofLogNotice() << "lz4Data.format: " + ofToString(lz4Data.format);
+	ofLogNotice() << "lz4Data.frame_size: " + ofToString(lz4Data.frame_size);
+	ofLogNotice() << "lz4Data.compressed_bytes.size(): " + ofToString(lz4Data.lz4_compressed_bytes.size());
+#endif
 
 	return lz4Data;
 }
@@ -233,13 +239,17 @@ ofBuffer ofxGVTextureSerializer::serializeImage(const ofPixels &pixels)
 	ofBuffer bytes_dxt5 = serializeImageWithoutLZ4(pixels);
 	int frame_size = bytes_dxt5.size();
 
-	// ofLogNotice() << "DX5 bytes:";
-	// printFirstAndLastBytes(bytes_dxt5);
+#if GVTS_LOG_VERBOSE
+	ofLogNotice() << "serialized DX5 bytes:";
+	printFirstAndLastBytes(bytes_dxt5);
+#endif
 
 	ofBuffer compressed_bytes = compressLZ4(bytes_dxt5);
 
-	// ofLogNotice() << "Compressed bytes:";
-	// printFirstAndLastBytes(compressed_bytes);
+#if GVTS_LOG_VERBOSE
+	ofLogNotice() << "serialized compressed bytes:";
+	printFirstAndLastBytes(compressed_bytes);
+#endif
 
 	LZ4Data lz4Data = 
 		LZ4Data(
@@ -280,20 +290,24 @@ ofTexture ofxGVTextureSerializer::deserialize(const ofBuffer &buf)
 
 	LZ4Data lz4Data = getLZ4DataFromGVTextureByteArray(buf);
 
-	// ofLogNotice() << "deserialized info";
-	// ofLogNotice() << "lz4Data.width: " + ofToString(lz4Data.width);
-	// ofLogNotice() << "lz4Data.height: " + ofToString(lz4Data.height);
-	// ofLogNotice() << "lz4Data.format: " + imageFormatToString(lz4Data.format);
-	// ofLogNotice() << "lz4Data.frame_size: " + ofToString(lz4Data.frame_size);
-	// ofLogNotice() << "lz4Data.compressed_bytes.size(): " + ofToString(lz4Data.lz4_compressed_bytes.size());
+#if GVTS_LOG_VERBOSE
+	ofLogNotice() << "deserialized info";
+	ofLogNotice() << "lz4Data.width: " + ofToString(lz4Data.width);
+	ofLogNotice() << "lz4Data.height: " + ofToString(lz4Data.height);
+	ofLogNotice() << "lz4Data.format: " + imageFormatToString(lz4Data.format);
+	ofLogNotice() << "lz4Data.frame_size: " + ofToString(lz4Data.frame_size);
+	ofLogNotice() << "lz4Data.compressed_bytes.size(): " + ofToString(lz4Data.lz4_compressed_bytes.size());
 
-	// ofLogNotice() << "deserialized compressed bytes:";
-	// printFirstAndLastBytes(lz4Data.lz4_compressed_bytes);
+	ofLogNotice() << "deserialized compressed bytes:";
+	printFirstAndLastBytes(lz4Data.lz4_compressed_bytes);
+#endif
 
 	ofBuffer decompressed_bytes = decompressLZ4(lz4Data.lz4_compressed_bytes, lz4Data.frame_size);
 
-	// ofLogNotice() << "decompressed DXT5 bytes:";
-	// printFirstAndLastBytes(decompressed_bytes);
+#if GVTS_LOG_VERBOSE
+	ofLogNotice() << "decompressed DXT5 bytes:";
+	printFirstAndLastBytes(decompressed_bytes);
+#endif
 
 	GLuint _texture = 0;
 
