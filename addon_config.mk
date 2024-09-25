@@ -15,11 +15,11 @@
 # and the PG will write to the console the kind of error and in which line it is
 
 meta:
-	ADDON_NAME = ofxSharedMemory
-	ADDON_DESCRIPTION = Shared Memory addon for openFrameworks, using kyr0/libsharedmemory
+	ADDON_NAME = ofxGVTextureSerializer
+	ADDON_DESCRIPTION = GVTextureSerializer, which can be used to transfer ofTexture data between processes.
 	ADDON_AUTHOR = Fumiya Funatsu
 	ADDON_TAGS = "utility"
-	ADDON_URL = https://github.com/funatsufumiya/ofxSharedMemory
+	ADDON_URL = https://github.com/funatsufumiya/ofxGVTextureSerializer
 
 common:
 	# dependencies with other addons, a list of them separated by spaces 

@@ -1,26 +1,51 @@
-# ofxSharedMemory
+# ofxGVTextureSerializer
 
-Shared Memory addon for OpenFrameworks 11/12, using [kyr0/libsharedmemory](https://github.com/kyr0/libsharedmemory).
+GVTextureSerializer addon for OpenFrameworks 11/12
+
+You can use this for Texture sharing as bytes, via ZeroMQ / Shared Memory etc.
 
 ## Usage
 
 - ofApp.h
     
     ```cpp
-    std::shared_ptr<lsm::SharedMemoryReadStream> reader;
-	std::shared_ptr<lsm::SharedMemoryWriteStream> writer;
+    ofxGVTextureSerializer serializer;
+    ofFbo fbo;
+    ofTexture tex;
     ```
 
 - ofApp.cpp
 
     ```cpp
-    std::string dataToTransfer = "Hello World!";
-        
-    writer = std::make_shared<SharedMemoryWriteStream>("strPipe", 65535, false); // name, size, isPersistent
-    writer->write(dataToTransfer);
-    ofLogNotice() << "Data wrote: " << dataToTransfer;
+    void ofApp::setup() {
+        fbo.allocate(512, 512, GL_RGBA);
+    }
 
-    reader = std::make_shared<SharedMemoryReadStream>("strPipe", 65535, false);
-    std::string data = reader->readString();
-    ofLogNotice() << "Data read: " << data;
+    void ofApp::update() {
+        fbo.begin();
+        ofClear(0);
+        // draw rotating triangle
+        ofPushMatrix();
+        ofTranslate(fbo.getWidth() / 2, fbo.getHeight() / 2);
+        ofRotateDeg(ofGetElapsedTimef() * 30);
+        ofDrawTriangle(0, -100, 87, 100, -87, 100);
+        ofPopMatrix();
+        fbo.end();
+    }
+
+    void ofApp::draw() {
+        ofSetColor(255);
+        fbo.draw(0, 0);
+        tex.draw(0, 512);
+    }
     ```
+
+## Binary File Format (GVTexture)
+
+```txt
+0: uint32_t width
+4: uint32_t height
+12: uint32_t format (DXT1 = 1, DXT3 = 3, DXT5 = 5, BC7 = 7)
+16: uint32_t frame bytes
+20: raw frame storage (lz4 compressed)
+```

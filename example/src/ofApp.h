@@ -2,20 +2,15 @@
 
 #include "ofMain.h"
 
-#include "libsharedmemory.hpp"
+#include "ofxGVTextureSerializer.h"
 
 class ofApp : public ofBaseApp{
 
 	public:
-		std::shared_ptr<lsm::SharedMemoryReadStream> reader;
-		std::shared_ptr<lsm::SharedMemoryWriteStream> writer;
-
-		std::string transferredData;
-
-		float startedTimef = 0.0f;
-		float elapsedTimef = 0.0f;
-
-		int counter = 0;
+        ofxGVTextureSerializer serializer;
+		ofFbo fbo;
+		ofBuffer buffer;
+		ofTexture tex;
 
 		void setup();
 		void update();

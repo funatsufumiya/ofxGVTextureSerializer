@@ -1,48 +1,33 @@
 #include "ofApp.h"
 
-using namespace lsm;
-
 //--------------------------------------------------------------
 void ofApp::setup(){
 	ofLogToConsole();
 
-	startedTimef = ofGetElapsedTimef();
-
-	std::string dataToTransfer = "Hello World!";
-    
-	writer = std::make_shared<SharedMemoryWriteStream>("strPipe", 65535, false);
-	writer->write(dataToTransfer);
-	ofLogNotice() << "Data wrote: " << dataToTransfer;
-
-	reader = std::make_shared<SharedMemoryReadStream>("strPipe", 65535, false);
-	std::string data = reader->readString();
-	ofLogNotice() << "Data read: " << data;
-
-	transferredData = data;
+	fbo.allocate(512, 512, GL_RGBA);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	elapsedTimef = ofGetElapsedTimef() - startedTimef;
+    fbo.begin();
+	ofClear(0);
+	// draw rotating triangle
+	ofPushMatrix();
+	ofTranslate(fbo.getWidth() / 2, fbo.getHeight() / 2);
+	ofRotateDeg(ofGetElapsedTimef() * 30);
+	ofDrawTriangle(0, -100, 87, 100, -87, 100);
+	ofPopMatrix();
+	fbo.end();
 
-	if (elapsedTimef >= 1.0){
-		counter++;
-		writer->write("Hello World! " + ofToString(counter));
-		ofLogNotice() << "Data wrote: " << "Hello World! " + ofToString(counter);
-
-		std::string data = reader->readString();
-		ofLogNotice() << "Data read: " << data;
-
-		transferredData = data;
-
-		startedTimef = ofGetElapsedTimef();
-		elapsedTimef = 0.0;
-	}
+	buffer = serializer.serializeTexture(fbo.getTexture());
+	tex = serializer.deserialize(buffer);
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-	ofDrawBitmapStringHighlight("Transferred data: " + transferredData, 20, 20);
+    ofSetColor(255);
+	fbo.draw(0, 0);
+	tex.draw(0, 512);
 }
 
 //--------------------------------------------------------------
