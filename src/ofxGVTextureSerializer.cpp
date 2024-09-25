@@ -180,6 +180,11 @@ LZ4Data ofxGVTextureSerializer::getLZ4DataFromGVTextureByteArray(const ofBuffer 
 	std::memcpy(&frame_size, gv_texture_bytes_ptr + 12, 4);
 	std::memcpy(&compressed_bytes, gv_texture_bytes_ptr + 16, 4);
 
+#if defined(_WIN32) || defined(_WIN64)
+	// fix endian of compressed_bytes
+	compressed_bytes = _byteswap_ulong(compressed_bytes);
+#endif
+
 	// lz4Data.width = width;
 	// lz4Data.height = height;
 	// lz4Data.format = format;
