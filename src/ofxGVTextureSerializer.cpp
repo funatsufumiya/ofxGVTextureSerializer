@@ -137,18 +137,13 @@ ofBuffer ofxGVTextureSerializer::createGVTextureByteArray(LZ4Data lz4Data)
 	int compressed_bytes = lz4Data.getCompressedSize();
 	gv_texture_bytes.allocate(20 + compressed_bytes);
 
-	char *gv_texture_bytes_ptr = (char *)gv_texture_bytes.getData();
-	char* lz4DataPtr = (char *)lz4Data.getData().getData();
-	int width = lz4Data.getWidth();
-	int height = lz4Data.getHeight();
-	int format = lz4Data.getFormat();
-	int frame_size = lz4Data.getFrameSize();
-	std::memcpy(gv_texture_bytes_ptr, &width, 4);
-	std::memcpy(gv_texture_bytes_ptr + 4, &height, 4);
-	std::memcpy(gv_texture_bytes_ptr + 8, &format, 4);
-	std::memcpy(gv_texture_bytes_ptr + 12, &frame_size, 4);
-	std::memcpy(gv_texture_bytes_ptr + 16, &compressed_bytes, 4);
-	std::memcpy(gv_texture_bytes_ptr + 20, lz4DataPtr, compressed_bytes);
+	uint32_t *gv_texture_bytes_ptr = (uint32_t *)gv_texture_bytes.getData();
+	gv_texture_bytes_ptr[0] = lz4Data.getWidth();
+	gv_texture_bytes_ptr[1] = lz4Data.getHeight();
+	gv_texture_bytes_ptr[2] = lz4Data.getFormat();
+	gv_texture_bytes_ptr[3] = lz4Data.getFrameSize();
+	gv_texture_bytes_ptr[4] = compressed_bytes;
+	std::memcpy(gv_texture_bytes_ptr + 5, lz4Data.getData().getData(), compressed_bytes);
 
 #if GVTS_LOG_VERBOSE
 	ofLogNotice() << "serialized info";
@@ -164,27 +159,19 @@ ofBuffer ofxGVTextureSerializer::createGVTextureByteArray(LZ4Data lz4Data)
 
 LZ4Data ofxGVTextureSerializer::getLZ4DataFromGVTextureByteArray(const ofBuffer &data)
 {
-	const char *gv_texture_bytes_ptr = (char *)data.getData();
-	// lz4Data.width = gv_texture_bytes_ptr[0];
-	// lz4Data.height = gv_texture_bytes_ptr[1];
-	// lz4Data.format = gv_texture_bytes_ptr[2];
-	// lz4Data.frame_size = gv_texture_bytes_ptr[3];
-	int width = 0;
-	int height = 0;
-	int format = 0;
-	int frame_size = 0;
-	int compressed_bytes = 0;
-	std::memcpy(&width, gv_texture_bytes_ptr, 4);
-	std::memcpy(&height, gv_texture_bytes_ptr + 4, 4);
-	std::memcpy(&format, gv_texture_bytes_ptr + 8, 4);
-	std::memcpy(&frame_size, gv_texture_bytes_ptr + 12, 4);
-	std::memcpy(&compressed_bytes, gv_texture_bytes_ptr + 16, 4);
+	uint32_t *gv_texture_bytes_ptr = (uint32_t *)data.getData();
+
+	int width = gv_texture_bytes_ptr[0];
+	int height = gv_texture_bytes_ptr[1];
+	int format = gv_texture_bytes_ptr[2];
+	int frame_size = gv_texture_bytes_ptr[3];
+	int compressed_bytes = gv_texture_bytes_ptr[4];
 
 	ofBuffer buf;
 	buf.allocate(compressed_bytes);
 
 	char* lz4DataPtr = buf.getData();
-	std::memcpy(lz4DataPtr, gv_texture_bytes_ptr + 20, compressed_bytes);
+	std::memcpy(lz4DataPtr, gv_texture_bytes_ptr + 5, compressed_bytes);
 
 	LZ4Data lz4Data = 
 		LZ4Data (
