@@ -11,6 +11,7 @@ void ofApp::setup(){
 void ofApp::update(){
     fbo.begin();
 	ofClear(0);
+	ofBackground(0, 50, 0);
 	// draw rotating triangle
 	ofPushMatrix();
 	ofTranslate(fbo.getWidth() / 2, fbo.getHeight() / 2);

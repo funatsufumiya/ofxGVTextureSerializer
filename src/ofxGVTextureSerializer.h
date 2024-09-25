@@ -23,6 +23,15 @@ struct LZ4Data {
     int frame_size;
     ofBuffer lz4_compressed_bytes;
 
+    LZ4Data(int width, int height, int format, int frame_size, const ofBuffer &lz4_compressed_bytes)
+    {
+        this->width = width;
+        this->height = height;
+        this->format = format;
+        this->frame_size = frame_size;
+        this->lz4_compressed_bytes = lz4_compressed_bytes;
+    }
+
     int getWidth() { return width; }
     int getHeight() { return height; }
     int getFormat() { return format; }

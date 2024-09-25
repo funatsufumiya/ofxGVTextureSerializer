@@ -36,6 +36,7 @@ ofBuffer ofxGVTextureSerializer::serializeImageWithoutLZ4(const ofPixels &pixels
 
 	if (pixel_format != OF_PIXELS_RGBA) {
 		ofLogError() << "Unsupported pixel format: " + format_name;
+		ofLogNotice() << "OF_PIXELS_RGBA is only supported";
 		return ofBuffer();
 	}
 
@@ -67,7 +68,7 @@ ofBuffer ofxGVTextureSerializer::compressLZ4(const ofBuffer &data)
 	int compressed_bound = LZ4_compressBound(data.size());
 	// ofLogNotice() << "data.size(): " + ofToString(data.size());
 	// ofLogNotice() << "compressed_bound: " + ofToString(compressed_bound);
-	compressed_data.reserve( compressed_bound );
+	compressed_data.allocate( compressed_bound );
 	// return ofBuffer();
 	int real_compressed_size = LZ4_compress_default(
 		(const char *)data.getData(),
@@ -75,12 +76,16 @@ ofBuffer ofxGVTextureSerializer::compressLZ4(const ofBuffer &data)
 		data.size(),
 		compressed_bound
 	);
+	
 	if (real_compressed_size < 0) {
 		ofLogError() << "Compression failed: " + ofToString(real_compressed_size);
 		assert(false);
 	}
 	// ofLogNotice() << "real_compressed_size: " + ofToString(real_compressed_size);
 	compressed_data.resize(real_compressed_size);
+
+	// assert(compressed_data.size() <= compressed_bound);
+	// assert(compressed_data.size() == real_compressed_size);
 
 	return compressed_data;
 }
@@ -96,7 +101,7 @@ ofBuffer ofxGVTextureSerializer::decompressLZ4(const ofBuffer &data, size_t fram
 
 	size_t decompressed_bound = frameSize * 4; // keep bigger size for safety
 
-	decompressed_data.reserve( decompressed_bound );
+	decompressed_data.allocate( decompressed_bound );
 	// decompressed_data.reserve(decompressed_bound);
 	int real_decompressed_size = LZ4_decompress_safe(
 		(const char *)data.getData(),
@@ -104,6 +109,11 @@ ofBuffer ofxGVTextureSerializer::decompressLZ4(const ofBuffer &data, size_t fram
 		data.size(),
 		decompressed_bound
 	);
+	// int real_decompressed_size = LZ4_decompress_fast(
+	// 	(const char *)data.getData(),
+	// 	(char *)decompressed_data.getData(),
+	// 	data.size()
+	// );
 
 	if (real_decompressed_size < 0) {
 		ofLogError() << "Decompression failed: " + ofToString(real_decompressed_size);
@@ -121,6 +131,7 @@ ofBuffer ofxGVTextureSerializer::createGVTextureByteArray(LZ4Data lz4Data)
 	ofBuffer gv_texture_bytes;
 	int compressed_bytes = lz4Data.getCompressedSize();
 	gv_texture_bytes.allocate(20 + compressed_bytes);
+
 	char *gv_texture_bytes_ptr = (char *)gv_texture_bytes.getData();
 	char* lz4DataPtr = (char *)lz4Data.getData().getData();
 	int width = lz4Data.getWidth();
@@ -146,8 +157,7 @@ ofBuffer ofxGVTextureSerializer::createGVTextureByteArray(LZ4Data lz4Data)
 
 LZ4Data ofxGVTextureSerializer::getLZ4DataFromGVTextureByteArray(const ofBuffer &data)
 {
-	LZ4Data lz4Data;
-	char *gv_texture_bytes_ptr = (char *)data.getData();
+	const char *gv_texture_bytes_ptr = (char *)data.getData();
 	// lz4Data.width = gv_texture_bytes_ptr[0];
 	// lz4Data.height = gv_texture_bytes_ptr[1];
 	// lz4Data.format = gv_texture_bytes_ptr[2];
@@ -162,13 +172,27 @@ LZ4Data ofxGVTextureSerializer::getLZ4DataFromGVTextureByteArray(const ofBuffer 
 	std::memcpy(&format, gv_texture_bytes_ptr + 8, 4);
 	std::memcpy(&frame_size, gv_texture_bytes_ptr + 12, 4);
 	std::memcpy(&compressed_bytes, gv_texture_bytes_ptr + 16, 4);
-	lz4Data.width = width;
-	lz4Data.height = height;
-	lz4Data.format = format;
-	lz4Data.frame_size = frame_size;
-	lz4Data.lz4_compressed_bytes.allocate(compressed_bytes);
-	char* lz4DataPtr = (char *)lz4Data.getData().getData();
+
+	// lz4Data.width = width;
+	// lz4Data.height = height;
+	// lz4Data.format = format;
+	// lz4Data.frame_size = frame_size;
+	// lz4Data.lz4_compressed_bytes.allocate(compressed_bytes);
+
+	ofBuffer buf;
+	buf.allocate(compressed_bytes);
+
+	char* lz4DataPtr = buf.getData();
 	std::memcpy(lz4DataPtr, gv_texture_bytes_ptr + 20, compressed_bytes);
+
+	LZ4Data lz4Data = 
+		LZ4Data (
+			width,
+			height,
+			format,
+			frame_size,
+			buf
+		);
 
 	// ofLogNotice() << "deserialized info";
 	// ofLogNotice() << "lz4Data.width: " + ofToString(lz4Data.width);
@@ -180,20 +204,54 @@ LZ4Data ofxGVTextureSerializer::getLZ4DataFromGVTextureByteArray(const ofBuffer 
 	return lz4Data;
 }
 
+inline void printFirstAndLastBytes(const ofBuffer &buf)
+{
+	const unsigned char *ptr = (unsigned char *)buf.getData();
+	ofLogNotice() << "First 16 bytes:";
+	std::string s;
+	for (int i = 0; i < 16; i++) {
+		s += ofToString((int)ptr[i]);
+		s += " ";
+	}
+	ofLogNotice() << s;
+	ofLogNotice() << "Last 16 bytes:";
+	s = ""; 
+	for (int i = buf.size() - 16; i < buf.size(); i++) {
+		s += ofToString((int)ptr[i]);
+		s += " ";
+	}
+	ofLogNotice() << s;
+}
+
 ofBuffer ofxGVTextureSerializer::serializeImage(const ofPixels &pixels)
 {
 	// ofLogNotice() << "GVTextureSerializer::serializeImage";
 
 	ofBuffer bytes_dxt5 = serializeImageWithoutLZ4(pixels);
 	int frame_size = bytes_dxt5.size();
+
+	ofLogNotice() << "DX5 bytes:";
+	printFirstAndLastBytes(bytes_dxt5);
+
 	ofBuffer compressed_bytes = compressLZ4(bytes_dxt5);
 
-	LZ4Data lz4Data;
-	lz4Data.lz4_compressed_bytes = compressed_bytes;
-	lz4Data.width = pixels.getWidth();
-	lz4Data.height = pixels.getHeight();
-	lz4Data.format = imageFormatToGVTextureFormat(this->compressedImageFormat);
-	lz4Data.frame_size = frame_size;
+	// print compressed first 16 bytes and last 16 bytes
+	ofLogNotice() << "Compressed bytes:";
+	printFirstAndLastBytes(compressed_bytes);
+
+	LZ4Data lz4Data = 
+		LZ4Data(
+			pixels.getWidth(),
+			pixels.getHeight(),
+			imageFormatToGVTextureFormat(this->compressedImageFormat),
+			frame_size,
+			compressed_bytes
+		);
+	// lz4Data.lz4_compressed_bytes = compressed_bytes;
+	// lz4Data.width = pixels.getWidth();
+	// lz4Data.height = pixels.getHeight();
+	// lz4Data.format = imageFormatToGVTextureFormat(this->compressedImageFormat);
+	// lz4Data.frame_size = frame_size;
 
 	ofLogNotice() << "serialized info";
 	ofLogNotice() << "lz4Data.width: " + ofToString(lz4Data.width);
@@ -226,6 +284,9 @@ ofTexture ofxGVTextureSerializer::deserialize(const ofBuffer &buf)
 	ofLogNotice() << "lz4Data.format: " + imageFormatToString(lz4Data.format);
 	ofLogNotice() << "lz4Data.frame_size: " + ofToString(lz4Data.frame_size);
 	ofLogNotice() << "lz4Data.compressed_bytes.size(): " + ofToString(lz4Data.lz4_compressed_bytes.size());
+
+	ofLogNotice() << "deserialized compressed bytes:";
+	printFirstAndLastBytes(lz4Data.lz4_compressed_bytes);
 
 	ofBuffer decompressed_bytes = decompressLZ4(lz4Data.lz4_compressed_bytes, lz4Data.frame_size);
 
