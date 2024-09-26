@@ -81,7 +81,8 @@ ofBuffer ofxGVTextureSerializer::compressLZ4(const ofBuffer &data)
 	
 	if (real_compressed_size < 0) {
 		ofLogError() << "Compression failed: " + ofToString(real_compressed_size);
-		assert(false);
+		// assert(false);
+		throw std::runtime_error("Compression failed");
 	}
 	// ofLogNotice() << "real_compressed_size: " + ofToString(real_compressed_size);
 	compressed_data.resize(real_compressed_size);
@@ -122,7 +123,7 @@ ofBuffer ofxGVTextureSerializer::decompressLZ4(const ofBuffer &data, size_t fram
 
 	if (real_decompressed_size < 0) {
 		ofLogError() << "Decompression failed: " + ofToString(real_decompressed_size);
-		assert(false);
+		throw std::runtime_error("Decompression failed");
 	}
 	decompressed_data.resize(real_decompressed_size);
 
