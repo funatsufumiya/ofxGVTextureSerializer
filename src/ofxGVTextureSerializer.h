@@ -100,7 +100,7 @@ public:
 
     ofBuffer serializeImage(const ofPixels &pixels);
     ofBuffer serializeTexture(const ofTexture &texture);
-    ofxGVTexture deserialize(const ofBuffer &data);
+    ofTexture deserialize(const ofBuffer &data);
 
     int getCompressedImageFormat() { return compressedImageFormat; }
 };
