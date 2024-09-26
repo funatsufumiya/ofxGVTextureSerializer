@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxGVTexture.h"
 
 // #define GVT_DXT1 1
 // #define GVT_DXT3 3
