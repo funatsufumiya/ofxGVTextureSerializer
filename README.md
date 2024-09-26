@@ -58,3 +58,5 @@ You can use this for Texture sharing as bytes, via ZeroMQ / Shared Memory etc.
 ```
 
 This format is nearly same as [ofxExtremeGpuVideo](https://github.com/Ushio/ofxExtremeGpuVideo).
+
+Byte size will be shrinked nearly 1/40 from RGBA8 texture.
