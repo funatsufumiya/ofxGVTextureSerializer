@@ -4,11 +4,11 @@ class ofxGVTexture {
 protected:
     ofTexture tex;
     GLuint _texture = 0;
-    bool isAllocated = false;
+    bool _isAllocated = false;
 
 public:
-    ofxGVTexture(const ofTexture &tex, GLuint _texture) : tex(tex), _texture(_texture) {
-        isAllocated = true;
+    ofxGVTexture(const ofTexture& tex, GLuint _texture) : tex(tex), _texture(_texture) {
+        _isAllocated = true;
     }
 
     ofxGVTexture() {
@@ -25,7 +25,7 @@ public:
     }
 
     bool isAllocated() const {
-        return isAllocated;
+        return _isAllocated;
     }
 
     void draw(float x, float y) {
@@ -35,6 +35,4 @@ public:
     void draw(float x, float y, float w, float h) {
         tex.draw(x, y, w, h);
     }
-}
-
-
+};
