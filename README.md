@@ -56,3 +56,5 @@ You can use this for Texture sharing as bytes, via ZeroMQ / Shared Memory etc.
 16: uint32_t frame bytes
 20: raw frame storage (lz4 compressed)
 ```
+
+This format is nearly same as [ofxExtremeGpuVideo](https://github.com/Ushio/ofxExtremeGpuVideo).
