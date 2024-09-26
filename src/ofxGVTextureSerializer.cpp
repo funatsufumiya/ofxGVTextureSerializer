@@ -218,6 +218,8 @@ ofBuffer ofxGVTextureSerializer::serializeImage(const ofPixels &pixels)
 
 	ofBuffer compressed_bytes = compressLZ4(bytes_dxt5);
 
+	bytes_dxt5.clear();
+
 #if GVTS_LOG_VERBOSE
 	ofLogNotice() << "serialized compressed bytes:";
 	printFirstAndLastBytes(compressed_bytes);
@@ -232,7 +234,8 @@ ofBuffer ofxGVTextureSerializer::serializeImage(const ofPixels &pixels)
 			compressed_bytes
 		);
 
-	return createGVTextureByteArray(lz4Data);
+	ofBuffer buf = createGVTextureByteArray(lz4Data);
+	return buf;
 }
 
 ofBuffer ofxGVTextureSerializer::serializeTexture(const ofTexture &texture)
@@ -310,6 +313,8 @@ ofTexture ofxGVTextureSerializer::deserialize(const ofBuffer &buf)
 	data.tex_h = lz4Data.height;
 	data.tex_t = 1.0f;
 	data.tex_u = 1.0f;
+
+	decompressed_bytes.clear();
 
 	return tex;
 }
