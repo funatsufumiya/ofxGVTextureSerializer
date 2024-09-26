@@ -6,46 +6,41 @@ You can use this for Texture sharing as bytes, via ZeroMQ / Shared Memory etc.
 
 ## Usage
 
-- ofApp.h
-    
-    ```cpp
-    ofxGVTextureSerializer serializer;
-    ofFbo fbo; // source
-    ofTexture tex; // destination
-    ofBuffer buffer; // serialized data
-    ```
+```cpp
 
-- ofApp.cpp
+ofxGVTextureSerializer serializer;
+ofFbo fbo; // source
+ofTexture tex; // destination
+ofBuffer buffer; // serialized data
 
-    ```cpp
-    void ofApp::setup() {
-        fbo.allocate(512, 512, GL_RGBA);
-    }
+void ofApp::setup() {
+    fbo.allocate(512, 512, GL_RGBA);
+}
 
-    void ofApp::update() {
-        fbo.begin();
-        ofClear(0);
-        // draw rotating triangle
-        ofPushMatrix();
-        ofTranslate(fbo.getWidth() / 2, fbo.getHeight() / 2);
-        ofRotateDeg(ofGetElapsedTimef() * 30);
-        ofDrawTriangle(0, -100, 87, 100, -87, 100);
-        ofPopMatrix();
-        fbo.end();
+void ofApp::update() {
+    fbo.begin();
+    ofClear(0);
+    // draw rotating triangle
+    ofPushMatrix();
+    ofTranslate(fbo.getWidth() / 2, fbo.getHeight() / 2);
+    ofRotateDeg(ofGetElapsedTimef() * 30);
+    ofDrawTriangle(0, -100, 87, 100, -87, 100);
+    ofPopMatrix();
+    fbo.end();
 
-        // serialize fbo to buffer
-        ofBuffer buffer = serializer.serializeTexture(fbo.getTexture());
+    // serialize fbo to buffer
+    ofBuffer buffer = serializer.serializeTexture(fbo.getTexture());
 
-        // deserialize buffer to tex
-        tex = serializer.deserialize(buffer);
-    }
+    // deserialize buffer to tex
+    tex = serializer.deserialize(buffer);
+}
 
-    void ofApp::draw() {
-        ofSetColor(255);
-        fbo.draw(0, 0);
-        tex.draw(512, 0);
-    }
-    ```
+void ofApp::draw() {
+    ofSetColor(255);
+    fbo.draw(0, 0);
+    tex.draw(512, 0);
+}
+```
 
 ## Binary File Format (GVTexture)
 
