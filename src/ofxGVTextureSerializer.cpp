@@ -246,7 +246,7 @@ ofBuffer ofxGVTextureSerializer::serializeTexture(const ofTexture &texture)
 	return serializeImage(pixels);
 }
 
-ofTexture ofxGVTextureSerializer::deserialize(const ofBuffer &buf)
+ofxGVTexture ofxGVTextureSerializer::deserialize(const ofBuffer &buf)
 {
 	// ofLogNotice() << "GVTextureSerializer::deserialize";
 
@@ -313,7 +313,7 @@ ofTexture ofxGVTextureSerializer::deserialize(const ofBuffer &buf)
 	data.tex_t = 1.0f;
 	data.tex_u = 1.0f;
 
-	return tex;
+	return ofxGVTexture(tex, _texture);
 }
 
 int ofxGVTextureSerializer::imageFormatToGVTextureFormat(int image_format)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxGVTexture.h"
 
 // #define GVT_DXT1 1
 // #define GVT_DXT3 3
@@ -99,7 +100,7 @@ public:
 
     ofBuffer serializeImage(const ofPixels &pixels);
     ofBuffer serializeTexture(const ofTexture &texture);
-    ofTexture deserialize(const ofBuffer &data);
+    ofxGVTexture deserialize(const ofBuffer &data);
 
     int getCompressedImageFormat() { return compressedImageFormat; }
 };
