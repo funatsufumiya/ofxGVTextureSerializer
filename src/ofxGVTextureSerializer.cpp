@@ -299,10 +299,11 @@ ofxGVTexture ofxGVTextureSerializer::deserialize(const ofBuffer &buf)
 	glCompressedTexImage2D(GL_TEXTURE_2D, 0, _glFmt, lz4Data.getWidth(), lz4Data.getHeight(), 0, lz4Data.getFrameSize(), decompressed_bytes.getData());
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	ofTexture tex;
-	ofTextureData &data = tex.texData;
+	// ofTexture tex;
+	std::shared_ptr<ofTexture> tex = std::make_shared<ofTexture>();
+	ofTextureData &data = tex->texData;
 	data.textureID = 0;
-	tex.setUseExternalTextureID(_texture);
+	tex->setUseExternalTextureID(_texture);
 	// data.glInternalFormat = _glFmt;
 
 	data.width = lz4Data.width;
