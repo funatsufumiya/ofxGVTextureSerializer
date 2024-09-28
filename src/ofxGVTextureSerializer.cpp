@@ -246,6 +246,37 @@ ofBuffer ofxGVTextureSerializer::serializeTexture(const ofTexture &texture)
 	return serializeImage(pixels);
 }
 
+ofBuffer ofxGVTextureSerializer::serializeImageToLZ4(const ofPixels &pixels)
+{
+	// ofLogNotice() << "GVTextureSerializer::serializeImageToLZ4";
+
+	ofBuffer bytes_dxt5 = serializeImageWithoutLZ4(pixels);
+	int frame_size = bytes_dxt5.size();
+
+#if GVTS_LOG_VERBOSE
+	ofLogNotice() << "serialized DX5 bytes:";
+	printFirstAndLastBytes(bytes_dxt5);
+#endif
+
+	ofBuffer compressed_bytes = compressLZ4(bytes_dxt5);
+
+#if GVTS_LOG_VERBOSE
+	ofLogNotice() << "serialized compressed bytes:";
+	printFirstAndLastBytes(compressed_bytes);
+#endif
+
+	return compressed_bytes;
+}
+
+ofBuffer ofxGVTextureSerializer::serializeTextureToLZ4(const ofTexture &texture)
+{
+	// ofLogNotice() << "GVTextureSerializer::serializeTextureToLZ4";
+
+	ofPixels pixels;
+	texture.readToPixels(pixels);
+	return serializeImageToLZ4(pixels);
+}
+
 ofTexture ofxGVTextureSerializer::deserialize(const ofBuffer &buf)
 {
 	// ofLogNotice() << "GVTextureSerializer::deserialize";
@@ -325,6 +356,52 @@ ofTexture ofxGVTextureSerializer::deserialize(const ofBuffer &buf)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glCompressedTexImage2D(GL_TEXTURE_2D, 0, _glFmt, lz4Data.getWidth(), lz4Data.getHeight(), 0, lz4Data.getFrameSize(), decompressed_bytes.getData());
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	//return std::move(ofxGVTexture(tex, _texture));
+	return tex;
+}
+
+ofTexture ofxGVTextureSerializer::deserializeFromLZ4(const ofBuffer &buf, int width, int height, int format, int frame_size)
+{
+	// ofLogNotice() << "GVTextureSerializer::deserializeFromLZ4";
+
+	ofBuffer decompressed_bytes = decompressLZ4(buf, frame_size);
+
+#if GVTS_LOG_VERBOSE
+	ofLogNotice() << "decompressed DXT5 bytes:";
+	printFirstAndLastBytes(decompressed_bytes);
+#endif
+
+	int _glFmt = FORMAT_UNKNOWN;
+	
+	switch (format) {
+		case FORMAT_DXT1:
+			_glFmt = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+			break;
+		case FORMAT_DXT3:
+			_glFmt = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+			break;
+		case FORMAT_DXT5:
+			_glFmt = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			break;
+		case FORMAT_BPTC_RGBA:
+			_glFmt = GL_COMPRESSED_RGBA_BPTC_UNORM_ARB;
+			break;
+	}
+
+	ofTexture tex;
+	tex.allocate(width, height, _glFmt, false, _glFmt == GL_COMPRESSED_RGB_S3TC_DXT1_EXT ? GL_RGB8 : GL_RGBA8, GL_UNSIGNED_BYTE);
+	GLuint &_texture = tex.texData.textureID;
+
+//	glGenTextures(1, &_texture);
+
+	glBindTexture(GL_TEXTURE_2D, _texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glCompressedTexImage2D(GL_TEXTURE_2D, 0, _glFmt, width, height, 0, frame_size, decompressed_bytes.getData());
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	//return std::move(ofxGVTexture(tex, _texture));

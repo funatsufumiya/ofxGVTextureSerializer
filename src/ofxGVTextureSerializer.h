@@ -99,7 +99,10 @@ public:
 
     ofBuffer serializeImage(const ofPixels &pixels);
     ofBuffer serializeTexture(const ofTexture &texture);
+    ofBuffer serializeImageToLZ4(const ofPixels &pixels);
+    ofBuffer serializeTextureToLZ4(const ofTexture &texture);
     ofTexture deserialize(const ofBuffer &data);
+    ofTexture deserializeFromLZ4(const ofBuffer &data, int width, int height, int format, int frame_size);
 
     int getCompressedImageFormat() { return compressedImageFormat; }
 };
