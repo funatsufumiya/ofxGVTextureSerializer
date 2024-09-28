@@ -55,3 +55,8 @@ void ofApp::draw() {
 This format is nearly same as [ofxExtremeGpuVideo](https://github.com/Ushio/ofxExtremeGpuVideo).
 
 Byte size will be shrinked nearly 1/40 from RGBA8 texture.
+
+## Derivatives
+
+- [GVEncoder](https://github.com/funatsufumiya/GVEncoder)
+- [OF_TextureSharingTest](https://github.com/funatsufumiya/OF_TextureSharingTest)
